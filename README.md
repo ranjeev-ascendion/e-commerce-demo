@@ -4,6 +4,97 @@ A full-featured demo e-commerce application built with **Ruby on Rails 7 scaffol
 
 ---
 
+## 🛠️ Complete App Setup Guide
+
+### 📋 1. Prerequisites
+Ensure you have the following installed on your machine:
+- **Ruby**: 3.0.0 or higher (`ruby -v`)
+- **Rails**: 7.1.0 or higher (`rails -v`)
+- **SQLite3**: 1.6 or higher (`sqlite3 --version`)
+- **Node.js** *(Optional for quick preview server)*: v18.0.0 or higher (`node -v`)
+- **Git**: (`git --version`)
+
+---
+
+### ⚙️ 2. Step-by-Step Installation & Setup
+
+#### Step 1: Clone the Repository
+```bash
+git clone https://github.com/ranjeev-ascendion/e-commerce-demo.git
+cd e-commerce-demo
+```
+
+#### Step 2: Install Dependencies & Setup Environment
+```bash
+# Install Ruby gem dependencies
+bundle install
+```
+
+#### Step 3: Database Setup & Migration
+Initialize SQLite database, run Active Record schema migrations, and load seed data:
+```bash
+# Create database, run migrations, and load sample products & users
+bin/rails db:create
+bin/rails db:migrate
+bin/rails db:seed
+```
+
+#### Step 4: Start the Ruby on Rails Server
+```bash
+# Start Puma web server on port 3000
+bin/rails server -p 3000
+```
+Open **`http://localhost:3000`** in your browser to view the application!
+
+---
+
+### ⚡ Quick Preview Mode (Zero-Dependency Node Server)
+If Ruby is not installed natively on your host environment, you can run the instant preview server:
+```bash
+# Runs immediately using Node.js built-in HTTP server (no npm install required)
+node server.js
+```
+Open **`http://localhost:3000`** in your web browser.
+
+---
+
+## 🔑 Demo Accounts
+
+| Role | Email | Password | Features |
+| :--- | :--- | :--- | :--- |
+| **Admin User** | `admin@store.com` | `password123` | Full Product CRUD, Stock Management, Fulfillment & Order Status updates |
+| **Customer User** | `customer@store.com` | `password123` | Browse products, Cart management, Checkout, Payment processing & Order tracking |
+
+---
+
+## 🚀 Push Changes to GitHub Master Branch
+
+To push changes to the remote repository on the `master` branch:
+
+```bash
+# 1. Initialize and configure local repo
+git init
+git config user.name "Ranjeev Kumar"
+git config user.email "ranjeevkumar.s@ascendion.com"
+
+# 2. Stage and commit changes
+git add .
+git commit -m "Update README with detailed app setup steps"
+
+# 3. Ensure branch is set to master
+git branch -M master
+
+# 4. Add remote origin
+git remote add origin https://github.com/ranjeev-ascendion/e-commerce-demo.git
+
+# 5. Push to GitHub master branch
+git push -u origin master
+```
+
+*Note: GitHub requires a Personal Access Token (PAT) for HTTPS authentication instead of password.*
+
+---
+
 ## 🚀 Key Features & Implementation
 
 | Feature Area | Details & Highlights |
@@ -67,42 +158,6 @@ rails_ecommerce_app/
     ├── styles.css               # Modern dark mode & CSS design system
     └── app.js                   # Client state management & Rails API integration
 ```
-
----
-
-## 🛠️ How to Run the Application
-
-### Option A: Running with Node.js Dev Preview Server (Recommended for immediate testing)
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start the dev server
-npm start
-```
-Open **`http://localhost:3000`** in your web browser.
-
-### Option B: Running with Ruby on Rails
-```bash
-# 1. Install Gems
-bundle install
-
-# 2. Setup Database & Run Migrations
-bin/rails db:create db:migrate db:seed
-
-# 3. Start Rails Server
-bin/rails server -p 3000
-```
-Open **`http://localhost:3000`** in your web browser.
-
----
-
-## 🔑 Demo Accounts
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Admin User** | `admin@store.com` | `password123` |
-| **Customer User** | `customer@store.com` | `password123` |
 
 ---
 

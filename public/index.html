@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ApexCart | Modern E-Commerce Platform</title>
+  <meta name="description" content="A modern, high-performance Ruby on Rails e-commerce web application with rich API & interactive frontend." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header Navigation -->
+    <header class="navbar">
+      <div class="nav-container">
+        <a href="#" class="brand-logo" onclick="app.showPage('shop'); return false;">
+          <div class="logo-icon">🛍️</div>
+          <span class="logo-text">Apex<span class="logo-accent">Cart</span></span>
+          <span class="rails-badge">Rails API</span>
+        </a>
+
+        <div class="nav-search">
+          <input type="text" id="search-input" placeholder="Search products, brands, categories..." oninput="app.handleSearch(this.value)">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="nav-actions">
+          <button class="nav-btn" id="admin-panel-btn" onclick="app.toggleAdminModal()" style="display:none;">
+            ⚙️ <span class="btn-text">Admin Studio</span>
+          </button>
+
+          <button class="nav-btn" onclick="app.openCartDrawer()">
+            🛒 <span class="btn-text">Cart</span>
+            <span class="cart-badge" id="cart-count">0</span>
+          </button>
+
+          <div id="auth-buttons">
+            <button class="btn btn-outline" onclick="app.openAuthModal('login')">Sign In</button>
+            <button class="btn btn-primary" onclick="app.openAuthModal('signup')">Sign Up</button>
+          </div>
+
+          <div id="user-menu" style="display: none;" class="user-dropdown-container">
+            <button class="btn btn-secondary user-pill" onclick="app.toggleUserDropdown()">
+              👤 <span id="user-display-name">Account</span>
+            </button>
+            <div id="user-dropdown" class="dropdown-menu">
+              <div class="dropdown-header">
+                <strong id="dropdown-user-name">User Name</strong>
+                <small id="dropdown-user-email">email@example.com</small>
+              </div>
+              <hr />
+              <button onclick="app.openOrdersModal()">📦 My Orders</button>
+              <button onclick="app.openProfileModal()">👤 Account Profile</button>
+              <hr />
+              <button onclick="app.logout()" class="text-danger">🚪 Log Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub-header Category Bar -->
+    <nav class="category-bar">
+      <div class="category-container" id="category-filters">
+        <button class="category-chip active" onclick="app.filterCategory('')">All Products</button>
+        <button class="category-chip" onclick="app.filterCategory('Electronics')">Electronics</button>
+        <button class="category-chip" onclick="app.filterCategory('Computers')">Computers</button>
+        <button class="category-chip" onclick="app.filterCategory('Accessories')">Accessories</button>
+      </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <span class="hero-tag">✨ Rails 7 API & Micro-Frontend Demo</span>
+        <h1>Next-Gen Shopping Experience</h1>
+        <p>Explore high-quality tech gear, crisp audio peripherals, and ergonomic accessories with instant checkout & live order status tracking.</p>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-layout">
+      <!-- Product Grid Section -->
+      <section class="products-section">
+        <div class="section-header">
+          <h2>Featured Products</h2>
+          <span class="results-count" id="results-count">Showing all products</span>
+        </div>
+
+        <div class="product-grid" id="product-grid">
+          <!-- Rendered dynamically by JavaScript -->
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Cart Slide-Over Drawer -->
+    <div id="cart-drawer-overlay" class="overlay" onclick="app.closeCartDrawer()"></div>
+    <div id="cart-drawer" class="drawer">
+      <div class="drawer-header">
+        <h3>Shopping Cart 🛒</h3>
+        <button class="close-btn" onclick="app.closeCartDrawer()">&times;</button>
+      </div>
+      <div class="drawer-body" id="cart-drawer-body">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="drawer-footer" id="cart-drawer-footer">
+        <div class="cart-summary-line">
+          <span>Subtotal:</span>
+          <strong id="cart-subtotal">$0.00</strong>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" onclick="app.startCheckout()" id="checkout-btn">Proceed to Checkout 💳</button>
+      </div>
+    </div>
+
+    <!-- Auth Modal (Login / Signup) -->
+    <div id="auth-modal" class="modal-backdrop">
+      <div class="modal-card">
+        <button class="modal-close" onclick="app.closeAuthModal()">&times;</button>
+        <div class="modal-header">
+          <h3 id="auth-modal-title">Sign In to ApexCart</h3>
+          <p id="auth-modal-subtitle">Manage orders, payment methods, and account profile.</p>
+        </div>
+        <form id="auth-form" onsubmit="app.handleAuthSubmit(event)">
+          <div class="form-group" id="name-group" style="display:none;">
+            <label for="auth-name">Full Name</label>
+            <input type="text" id="auth-name" class="form-control" placeholder="Jane Doe">
+          </div>
+
+          <div class="form-group">
+            <label for="auth-email">Email Address</label>
+            <input type="email" id="auth-email" class="form-control" placeholder="name@domain.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required>
+          </div>
+
+          <div class="form-group" id="confirm-password-group" style="display:none;">
+            <label for="auth-confirm-password">Confirm Password</label>
+            <input type="password" id="auth-confirm-password" class="form-control" placeholder="••••••••">
+          </div>
+
+          <div id="auth-error-msg" class="alert alert-danger" style="display:none;"></div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="auth-submit-btn">Sign In</button>
+
+          <div class="auth-toggle-note">
+            <span id="auth-toggle-text">Don't have an account?</span>
+            <a href="#" id="auth-toggle-link" onclick="app.switchAuthMode(); return false;">Create one now</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal-backdrop">
+      <div class="modal-card modal-lg">
+        <button class="modal-close" onclick="app.closeCheckoutModal()">&times;</button>
+        <div class="modal-header">
+          <h3>Checkout & Order Confirmation</h3>
+          <p>Complete your shipping and payment information to place order.</p>
+        </div>
+
+        <div class="checkout-grid">
+          <form id="checkout-form" onsubmit="app.processOrderCheckout(event)">
+            <div class="form-section-title">1. Shipping Address</div>
+            <div class="form-group">
+              <label>Full Recipient Name</label>
+              <input type="text" id="ship-name" class="form-control" required placeholder="Jane Doe">
+            </div>
+            <div class="form-group">
+              <label>Street Address</label>
+              <input type="text" id="ship-address" class="form-control" required placeholder="742 Evergreen Terrace">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" id="ship-city" class="form-control" required value="Springfield">
+              </div>
+              <div class="form-group">
+                <label>Zip Code</label>
+                <input type="text" id="ship-zip" class="form-control" required value="90210">
+              </div>
+            </div>
+
+            <div class="form-section-title">2. Payment Method</div>
+            <div class="payment-options">
+              <label class="payment-radio-card">
+                <input type="radio" name="pay-method" value="credit_card" checked>
+                <div class="radio-content">
+                  <strong>💳 Credit / Debit Card</strong>
+                  <small>Instant Rails payment processing</small>
+                </div>
+              </label>
+              <label class="payment-radio-card">
+                <input type="radio" name="pay-method" value="paypal">
+                <div class="radio-content">
+                  <strong>🅿️ PayPal Express</strong>
+                  <small>Fast & secure digital wallet</small>
+                </div>
+              </label>
+            </div>
+
+            <div id="checkout-error" class="alert alert-danger" style="display:none;"></div>
+
+            <button type="submit" class="btn btn-success btn-block btn-lg" id="place-order-btn">
+              Pay Now & Confirm Order 🚀
+            </button>
+          </form>
+
+          <div class="order-summary-box">
+            <h4>Order Summary</h4>
+            <div id="checkout-summary-items"></div>
+            <hr>
+            <div class="summary-line">
+              <span>Items Total:</span>
+              <strong id="chk-items-total">$0.00</strong>
+            </div>
+            <div class="summary-line">
+              <span>Shipping Fee:</span>
+              <strong class="text-success">FREE</strong>
+            </div>
+            <div class="summary-line grand-total">
+              <span>Total Amount:</span>
+              <strong id="chk-grand-total">$0.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders History & Live Status Modal -->
+    <div id="orders-modal" class="modal-backdrop">
+      <div class="modal-card modal-lg">
+        <button class="modal-close" onclick="app.closeOrdersModal()">&times;</button>
+        <div class="modal-header">
+          <h3>My Orders & Status Tracking 📦</h3>
+          <p>Track live delivery status, view payment invoices and order details.</p>
+        </div>
+        <div id="orders-list-body" class="orders-container">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Studio Modal (Product CRUD & Order Management) -->
+    <div id="admin-modal" class="modal-backdrop">
+      <div class="modal-card modal-xl">
+        <button class="modal-close" onclick="app.closeAdminModal()">&times;</button>
+        <div class="modal-header">
+          <h3>⚙️ Admin Management Studio</h3>
+          <p>Create & edit products, manage inventory stock, and update order fulfillment status.</p>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="tab-btn active" id="tab-products-btn" onclick="app.switchAdminTab('products')">Product Catalog (CRUD)</button>
+          <button class="tab-btn" id="tab-orders-btn" onclick="app.switchAdminTab('orders')">Fulfillment Orders</button>
+        </div>
+
+        <div id="admin-tab-products" class="tab-content active">
+          <div class="admin-top-actions">
+            <button class="btn btn-success" onclick="app.openAddProductForm()">+ Add New Product</button>
+          </div>
+
+          <!-- Add / Edit Product Form Container -->
+          <div id="product-form-container" class="admin-card-box" style="display:none;">
+            <h4 id="product-form-title">Create New Product</h4>
+            <form id="product-crud-form" onsubmit="app.handleProductCrudSubmit(event)">
+              <input type="hidden" id="prod-id">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Product Name</label>
+                  <input type="text" id="prod-name" class="form-control" required placeholder="Mechanical Keyboard">
+                </div>
+                <div class="form-group">
+                  <label>SKU Code</label>
+                  <input type="text" id="prod-sku" class="form-control" required placeholder="PERIPH-KEY-009">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Price ($)</label>
+                  <input type="number" step="0.01" id="prod-price" class="form-control" required placeholder="99.99">
+                </div>
+                <div class="form-group">
+                  <label>Category</label>
+                  <select id="prod-category" class="form-control" required>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Computers">Computers</option>
+                    <option value="Accessories">Accessories</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Stock Quantity</label>
+                  <input type="number" id="prod-stock" class="form-control" required value="25">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" id="prod-image" class="form-control" placeholder="https://images.unsplash.com/photo-...">
+              </div>
+              <div class="form-group">
+                <label>Description</label>
+                <textarea id="prod-description" class="form-control" rows="3" placeholder="Product features and specs..."></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Product</button>
+                <button type="button" class="btn btn-secondary" onclick="app.closeProductForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-products-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="admin-tab-orders" class="tab-content">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Total Amount</th>
+                  <th>Current Status</th>
+                  <th>Payment</th>
+                  <th>Date</th>
+                  <th>Update Status</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
